@@ -37,7 +37,7 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ValidationException("Передан пустой аргумент!");
         }
         if (!items.containsKey(item.getId())) {
-            throw new ItemNotFoundException("Вещь с ID=" + item.getId() + " не найдена!");
+            throw new ItemNotFoundException("Вещь с ID = " + item.getId() + " не найдена!");
         }
         if (item.getName() == null) {
             item.setName(items.get(item.getId()).getName());
@@ -60,7 +60,7 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ValidationException("Передан пустой аргумент!");
         }
         if (!items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Вещь с ID=" + itemId + " не найден!");
+            throw new ItemNotFoundException("Вещь с ID = " + itemId + " не найден!");
         }
         return items.remove(itemId);
     }
@@ -86,7 +86,7 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public Item getItemById(Long itemId) {
         if (!items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Вещь с ID=" + itemId + " не найдена!");
+            throw new ItemNotFoundException("Вещь с ID = " + itemId + " не найдена!");
         }
         return items.get(itemId);
     }

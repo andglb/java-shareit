@@ -70,7 +70,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User getUserById(Long userId) {
         if (!users.containsKey(userId)) {
-            throw new UserNotFoundException("Пользователь с ID=" + userId + " не найден!");
+            throw new UserNotFoundException("Пользователь с ID = " + userId + " не найден!");
         }
         return users.get(userId);
     }
@@ -81,7 +81,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ValidationException("Передан пустой аргумент!");
         }
         if (!users.containsKey(userId)) {
-            throw new UserNotFoundException("Пользователь с ID=" + userId + " не найден!");
+            throw new UserNotFoundException("Пользователь с ID = " + userId + " не найден!");
         }
         return users.remove(userId);
     }
