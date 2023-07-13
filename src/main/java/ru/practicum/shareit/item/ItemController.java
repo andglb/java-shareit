@@ -29,7 +29,6 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
-    @ResponseBody
     @PostMapping
     public ItemDto create(@Valid @RequestBody ItemDto itemDto, @RequestHeader(OWNER) Long ownerId) {
         log.info("Получен POST-запрос к эндпоинту: '/items' на добавление вещи владельцем с ID={}", ownerId);
@@ -46,7 +45,6 @@ public class ItemController {
         return itemService.getItemsByOwner(ownerId);
     }
 
-    @ResponseBody
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
                           @RequestHeader(OWNER) Long ownerId) {

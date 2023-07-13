@@ -4,17 +4,14 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
 @Component("InMemoryItemStorage")
 public class InMemoryItemStorage implements ItemStorage {
 
-    public Map<Long, Item> items;
+    private Map<Long, Item> items;
     private Long currentId;
 
     public InMemoryItemStorage() {
@@ -24,7 +21,9 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Item create(Item item) {
-        if (isValidItem(item)) {
+        if (Optional.ofNullable(item).isEmpty()) {
+            throw new ItemNotFoundException("Такой вещи не существует!");
+        } else {
             item.setId(++currentId);
             items.put(item.getId(), item);
         }

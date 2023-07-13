@@ -13,7 +13,7 @@ import java.util.Map;
 @Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
-    public Map<Long, User> users;
+    private Map<Long, User> users;
     private Long currentId;
 
     public InMemoryUserStorage() {
@@ -28,17 +28,23 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        if (users.values().stream().noneMatch(u -> u.getEmail().equals(user.getEmail()))) {
+        if (isExistEmail(user)) {
             if (isValidUser(user)) {
                 if (user.getId() == null) {
                     user.setId(++currentId);
                 }
                 users.put(user.getId(), user);
             }
-        } else {
-            throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
         }
         return user;
+    }
+
+    public boolean isExistEmail(User user) {
+        if (!users.values().stream().noneMatch(u -> u.getEmail().equals(user.getEmail()))) {
+            //без исключения здесь не обойтись, так как оно необходимо, чтобы пройти тесты постмана :)
+            throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
+        }
+        return true;
     }
 
     @Override

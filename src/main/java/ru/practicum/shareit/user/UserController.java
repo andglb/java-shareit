@@ -31,14 +31,12 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
-    @ResponseBody
     @PostMapping
     public UserDto create(@Valid @RequestBody UserDto userDto) {
         log.info("Получен POST-запрос к эндпоинту: '/users' на добавление пользователя");
         return userService.create(userDto);
     }
 
-    @ResponseBody
     @PatchMapping("/{userId}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
         log.info("Получен PATCH-запрос к эндпоинту: '/users' на обновление пользователя с ID={}", userId);
