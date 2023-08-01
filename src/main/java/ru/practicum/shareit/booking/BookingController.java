@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
+import ru.practicum.shareit.exception.BadRequestException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,6 +28,10 @@ public class BookingController {
                              @RequestHeader(USER_ID) Long bookerId) {
         log.info("Получен POST-запрос к эндпоинту: '/bookings' " +
                 "на создание бронирования от пользователя с ID={}", bookerId);
+        if (bookingInputDto.getStart().isAfter(bookingInputDto.getEnd())
+        || bookingInputDto.getStart().equals(bookingInputDto.getEnd())) {
+            throw new BadRequestException("Начало аренды не может быть позже или равно сдачи вещи");
+        }
         return service.create(bookingInputDto, bookerId);
     }
 
