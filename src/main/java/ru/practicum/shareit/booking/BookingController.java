@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.BookingNotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;
