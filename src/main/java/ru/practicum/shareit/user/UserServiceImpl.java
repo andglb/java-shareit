@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -16,6 +17,8 @@ import static java.util.stream.Collectors.toList;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final String USER_NOT_FOUND = "Пользователь с ID = %d  не найден!";
+    private final String EMAIL_ALREADY_EXISTS = "Пользователь с E-mail = %s уже существует!";
 
     @Autowired
     public UserServiceImpl(UserRepository repository, UserMapper userMapper) {
@@ -33,7 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(Long id) {
         return mapper.toUserDto(repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + id + " не найден!")));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, id))));
     }
 
     @Override
@@ -41,33 +44,22 @@ public class UserServiceImpl implements UserService {
         try {
             return mapper.toUserDto(repository.save(mapper.toUser(userDto)));
         } catch (DataIntegrityViolationException e) {
-            throw new UserAlreadyExistsException("Пользователь с E-mail=" +
-                    userDto.getEmail() + " уже существует!");
+            throw new UserAlreadyExistsException(String.format(EMAIL_ALREADY_EXISTS, userDto.getEmail()));
         }
     }
 
     @Override
-    public UserDto update(UserDto userDto, Long id) {
-        if (userDto.getId() == null) {
-            userDto.setId(id);
+    public UserDto update(UserDto dto, Long id) {
+        Optional<User> userOpt = repository.findById(id);
+        if (userOpt.isEmpty()) {
+            throw new UserNotFoundException(String.format(USER_NOT_FOUND, dto.getId()));
         }
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + id + " не найден!"));
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
+        User user = userOpt.get();
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
+            checkEmailExistException(dto.getEmail());
         }
-        if ((userDto.getEmail() != null) && (userDto.getEmail() != user.getEmail())) {
-            if (repository.findByEmail(userDto.getEmail())
-                    .stream()
-                    .filter(u -> u.getEmail().equals(userDto.getEmail()))
-                    .allMatch(u -> u.getId().equals(userDto.getId()))) {
-                user.setEmail(userDto.getEmail());
-            } else {
-                throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
-            }
-
-        }
-        return mapper.toUserDto(repository.save(user));
+        User updateUser = repository.save(updateUserFields(dto, user));
+        return mapper.toUserDto(updateUser);
     }
 
     @Override
@@ -75,13 +67,29 @@ public class UserServiceImpl implements UserService {
         try {
             repository.deleteById(userId);
         } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Пользователь с ID=" + userId + " не найден!");
+            throw new UserNotFoundException(String.format(USER_NOT_FOUND, userId));
         }
     }
 
     @Override
     public User findUserById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID=" + id + " не найден!"));
+                .orElseThrow(() -> new UserNotFoundException(String.format(USER_NOT_FOUND, id)));
+    }
+
+    private void checkEmailExistException(String email) {
+        if (repository.findAll().stream().anyMatch(a -> a.getEmail().equals(email)))
+            throw new UserAlreadyExistsException(String.format(EMAIL_ALREADY_EXISTS, email)
+            );
+    }
+
+    private User updateUserFields(UserDto dto, User user) {
+        if (dto.getName() != null && dto.getName() != user.getName()) {
+            user.setName(dto.getName());
+        }
+        if (dto.getEmail() != null && dto.getEmail() != user.getEmail()) {
+            user.setEmail(dto.getEmail());
+        }
+        return user;
     }
 }

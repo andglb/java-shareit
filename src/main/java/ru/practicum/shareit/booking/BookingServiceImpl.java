@@ -47,6 +47,9 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingNotFoundException("Вещь с ID=" + bookingInputDto.getItemId() +
                     " недоступна для бронирования самим владельцем!");
         }
+        if (booking == null) {
+            return null;
+        }
         return mapper.toBookingDto(repository.save(booking));
     }
 
@@ -58,7 +61,6 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Время бронирования уже истекло!");
         }
-
         if (booking.getBooker().getId().equals(userId)) {
             if (!approved) {
                 booking.setStatus(Status.CANCELED);
@@ -68,24 +70,13 @@ public class BookingServiceImpl implements BookingService {
             }
         } else if ((checker.isItemOwner(booking.getItem().getId(), userId)) &&
                 (!booking.getStatus().equals(Status.CANCELED))) {
-            if (!booking.getStatus().equals(Status.WAITING)) {
-                throw new ValidationException("Решение по бронированию уже принято!");
-            }
-            if (approved) {
-                booking.setStatus(Status.APPROVED);
-                log.info("Пользователь с ID={} подтвердил бронирование с ID={}", userId, bookingId);
-            } else {
-                booking.setStatus(Status.REJECTED);
-                log.info("Пользователь с ID={} отклонил бронирование с ID={}", userId, bookingId);
-            }
+            checkBookingSolution(booking, approved, userId);
         } else {
-            if (booking.getStatus().equals(Status.CANCELED)) {
-                throw new ValidationException("Бронирование было отменено!");
-            } else {
-                throw new ValidationException("Подтвердить бронирование может только владелец вещи!");
-            }
+            checkCanceledBooking(booking.getStatus());
         }
-
+        if (booking == null) {
+            return null;
+        }
         return mapper.toBookingDto(repository.save(booking));
     }
 
@@ -95,6 +86,9 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = repository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("Бронирование с ID=" + bookingId + " не найдено!"));
         if (booking.getBooker().getId().equals(userId) || checker.isItemOwner(booking.getItem().getId(), userId)) {
+            if (booking == null) {
+                return null;
+            }
             return mapper.toBookingDto(booking);
         } else {
             throw new UserNotFoundException("Посмотреть данные бронирования может только владелец вещи" +
@@ -171,17 +165,23 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingShortDto getLastBooking(Long itemId) {
-        BookingShortDto bookingShortDto =
-                mapper.toBookingShortDto(repository.findTopByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(itemId,
-                        Status.APPROVED, LocalDateTime.now()));
+        Booking booking = repository.findTopByItemIdAndStatusAndStartIsBeforeOrderByEndDesc(itemId,
+                Status.APPROVED, LocalDateTime.now());
+        if (booking == null) {
+            return null;
+        }
+        BookingShortDto bookingShortDto = mapper.toBookingShortDto(booking);
         return bookingShortDto;
     }
 
     @Override
     public BookingShortDto getNextBooking(Long itemId) {
-        BookingShortDto bookingShortDto =
-                mapper.toBookingShortDto(repository.findTopByItemIdAndStatusAndStartIsAfterOrderByStart(itemId,
-                        Status.APPROVED, LocalDateTime.now()));
+        Booking booking = repository.findTopByItemIdAndStatusAndStartIsAfterOrderByStart(itemId,
+                Status.APPROVED, LocalDateTime.now());
+        if (booking == null) {
+            return null;
+        }
+        BookingShortDto bookingShortDto = mapper.toBookingShortDto(booking);
         return bookingShortDto;
     }
 
@@ -189,5 +189,26 @@ public class BookingServiceImpl implements BookingService {
     public Booking getBookingWithUserBookedItem(Long itemId, Long userId) {
         return repository.findFirstByItem_IdAndBooker_IdAndEndIsBeforeAndStatus(itemId,
                 userId, LocalDateTime.now(), Status.APPROVED);
+    }
+
+    private void checkCanceledBooking(Status status) {
+        if (status.equals(Status.CANCELED)) {
+            throw new ValidationException("Бронирование было отменено!");
+        } else {
+            throw new ValidationException("Подтвердить бронирование может только владелец вещи!");
+        }
+    }
+
+    private void checkBookingSolution(Booking booking, boolean approved, Long userId) {
+        if (!booking.getStatus().equals(Status.WAITING)) {
+            throw new ValidationException("Решение по бронированию уже принято!");
+        }
+        if (approved) {
+            booking.setStatus(Status.APPROVED);
+            log.info("Пользователь с ID={} подтвердил бронирование с ID={}", userId, booking.getId());
+        } else {
+            booking.setStatus(Status.REJECTED);
+            log.info("Пользователь с ID={} отклонил бронирование с ID={}", userId, booking.getId());
+        }
     }
 }

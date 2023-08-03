@@ -25,6 +25,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final CheckConsistencyService checker;
     private final ItemMapper mapper;
+    private final String ITEM_NOT_FOUND = "Вещь с ID = %d  не найдена!";
 
     @Autowired
     @Lazy
@@ -40,7 +41,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItemById(Long id, Long userId) {
         ItemDto itemDto;
         Item item = repository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException("Вещь с ID=" + id + " не найдена!"));
+                .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, id)));
         if (userId.equals(item.getOwner().getId())) {
             itemDto = mapper.toItemExtDto(item);
         } else {
@@ -52,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item findItemById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException("Вещь с ID=" + id + " не найдена!"));
+                .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, id)));
     }
 
     @Override
@@ -74,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
     public void delete(Long itemId, Long ownerId) {
         try {
             Item item = repository.findById(itemId)
-                    .orElseThrow(() -> new ItemNotFoundException("Вещь с ID=" + itemId + " не найдена!"));
+                    .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, itemId)));
             if (!item.getOwner().getId().equals(ownerId)) {
                 throw new ItemNotFoundException("У пользователя нет такой вещи!");
             }
@@ -98,7 +99,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
         checker.isExistUser(ownerId);
         Item item = repository.findById(itemId)
-                .orElseThrow(() -> new ItemNotFoundException("Вещь с ID=" + itemId + " не найдена!"));
+                .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, itemId)));
         if (!item.getOwner().getId().equals(ownerId)) {
             throw new ItemNotFoundException("У пользователя нет такой вещи!");
         }

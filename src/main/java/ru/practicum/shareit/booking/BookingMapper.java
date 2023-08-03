@@ -27,31 +27,23 @@ public class BookingMapper {
     }
 
     public BookingDto toBookingDto(Booking booking) {
-        if (booking != null) {
-            return new BookingDto(
-                    booking.getId(),
-                    booking.getStart(),
-                    booking.getEnd(),
-                    itemMapper.toItemDto(booking.getItem()),
-                    userMapper.toUserDto(booking.getBooker()),
-                    booking.getStatus()
-            );
-        } else {
-            return null;
-        }
+        return new BookingDto(
+                booking.getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                itemMapper.toItemDto(booking.getItem()),
+                userMapper.toUserDto(booking.getBooker()),
+                booking.getStatus()
+        );
     }
 
     public BookingShortDto toBookingShortDto(Booking booking) {
-        if (booking != null) {
-            return new BookingShortDto(
-                    booking.getId(),
-                    booking.getBooker().getId(),
-                    booking.getStart(),
-                    booking.getEnd()
-            );
-        } else {
-            return null;
-        }
+        return new BookingShortDto(
+                booking.getId(),
+                booking.getBooker().getId(),
+                booking.getStart(),
+                booking.getEnd()
+        );
     }
 
     public Booking toBooking(BookingInputDto bookingInputDto, Long bookerId) {
