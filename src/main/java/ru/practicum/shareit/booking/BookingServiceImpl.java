@@ -74,9 +74,6 @@ public class BookingServiceImpl implements BookingService {
         } else {
             checkCanceledBooking(booking.getStatus());
         }
-        if (booking == null) {
-            return null;
-        }
         return mapper.toBookingDto(repository.save(booking));
     }
 
