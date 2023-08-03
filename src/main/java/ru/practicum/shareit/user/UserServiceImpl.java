@@ -17,8 +17,8 @@ import static java.util.stream.Collectors.toList;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
-    static private final String USER_NOT_FOUND = "Пользователь с ID = %d  не найден!";
-    static private final String EMAIL_ALREADY_EXISTS = "Пользователь с E-mail = %s уже существует!";
+    private static final String USER_NOT_FOUND = "Пользователь с ID = %d  не найден!";
+    public static final String EMAIL_ALREADY_EXISTS = "Пользователь с E-mail = %s уже существует!";
 
     @Autowired
     public UserServiceImpl(UserRepository repository, UserMapper userMapper) {
