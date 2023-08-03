@@ -25,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final CheckConsistencyService checker;
     private final ItemMapper mapper;
-    private final String ITEM_NOT_FOUND = "Вещь с ID = %d  не найдена!";
+    static private final String ITEM_NOT_FOUND = "Вещь с ID = %d  не найдена!";
 
     @Autowired
     @Lazy
