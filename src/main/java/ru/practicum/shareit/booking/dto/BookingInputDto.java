@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class BookingInputDto {
+    @NotNull
     private Long itemId;
     @FutureOrPresent
     @NotNull

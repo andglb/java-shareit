@@ -43,8 +43,7 @@ public class CheckConsistencyService {
     }
 
     public boolean isItemOwner(Long itemId, Long userId) {
-
-        return itemService.getItemsByOwner(userId).stream()
+        return itemService.getItemsByOwner(userId, 0, null).stream()
                 .anyMatch(i -> i.getId().equals(itemId));
     }
 

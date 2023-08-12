@@ -27,7 +27,7 @@ public class BookingController {
     public BookingDto create(@Valid @RequestBody BookingInputDto bookingInputDto,
                              @RequestHeader(USER_ID) Long bookerId) {
         log.info("Получен POST-запрос к эндпоинту: '/bookings' " +
-                "на создание бронирования от пользователя с ID={}", bookerId);
+                "на создание бронирования от пользователя с ID = {}", bookerId);
         if (bookingInputDto.getStart().isAfter(bookingInputDto.getEnd())
                 || bookingInputDto.getStart().equals(bookingInputDto.getEnd())) {
             throw new BadRequestException("Начало аренды не может быть позже или равно сдачи вещи");
@@ -39,29 +39,33 @@ public class BookingController {
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable Long bookingId,
                              @RequestHeader(USER_ID) Long userId, @RequestParam Boolean approved) {
-        log.info("Получен PATCH-запрос к эндпоинту: '/bookings' на обновление статуса бронирования с ID={}", bookingId);
+        log.info("Получен PATCH-запрос к эндпоинту: '/bookings' на обновление статуса бронирования с ID = {}", bookingId);
         return service.update(bookingId, userId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@PathVariable Long bookingId, @RequestHeader(USER_ID) Long userId) {
-        log.info("Получен GET-запрос к эндпоинту: '/bookings' на получение бронирования с ID={}", bookingId);
+        log.info("Получен GET-запрос к эндпоинту: '/bookings' на получение бронирования с ID = {}", bookingId);
         return service.getBookingById(bookingId, userId);
     }
 
     @GetMapping
     public List<BookingDto> getBookings(@RequestParam(name = "state", defaultValue = "ALL") String state,
-                                        @RequestHeader(USER_ID) Long userId) {
+                                        @RequestHeader(USER_ID) Long userId,
+                                        @RequestParam(defaultValue = "0") Integer from,
+                                        @RequestParam(required = false) Integer size) {
         log.info("Получен GET-запрос к эндпоинту: '/bookings' на получение " +
-                "списка всех бронирований пользователя с ID={} с параметром STATE={}", userId, state);
-        return service.getBookings(state, userId);
+                "списка всех бронирований пользователя с ID = {} с параметром STATE = {}", userId, state);
+        return service.getBookings(state, userId, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getBookingsOwner(@RequestParam(name = "state", defaultValue = "ALL") String state,
-                                             @RequestHeader(USER_ID) Long userId) {
+                                             @RequestHeader(USER_ID) Long userId,
+                                             @RequestParam(defaultValue = "0") Integer from,
+                                             @RequestParam(required = false) Integer size) {
         log.info("Получен GET-запрос к эндпоинту: '/bookings/owner' на получение " +
-                "списка всех бронирований вещей пользователя с ID={} с параметром STATE={}", userId, state);
-        return service.getBookingsOwner(state, userId);
+                "списка всех бронирований вещей пользователя с ID={} с параметром STATE = {}", userId, state);
+        return service.getBookingsOwner(state, userId, from, size);
     }
 }
