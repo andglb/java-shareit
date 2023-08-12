@@ -37,7 +37,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidationException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse("Ошибка валидации!");
+        return new ErrorResponse("Аргумент не прошел валидацию!");
     }
 
     @ExceptionHandler

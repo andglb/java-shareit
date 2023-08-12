@@ -57,7 +57,7 @@ public class UserDtoTest {
         userDto.setName(" ");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно быть пустым'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 
     @Test
@@ -65,7 +65,7 @@ public class UserDtoTest {
         userDto.setName(null);
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно быть пустым'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class UserDtoTest {
         userDto.setEmail(" ");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно быть пустым'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class UserDtoTest {
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
         System.out.println(violations.toString());
-        assertThat(violations.toString()).contains("interpolatedMessage='должно иметь формат адреса электронной почты'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must be a well-formed email address'");
     }
 
     @Test
@@ -90,6 +90,6 @@ public class UserDtoTest {
         userDto.setEmail(null);
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='не должно быть пустым'");
+        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 }
