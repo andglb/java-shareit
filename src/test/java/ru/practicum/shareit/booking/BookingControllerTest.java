@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -53,6 +55,7 @@ public class BookingControllerTest {
                     new User(1L, "UserFirstName", "UserFirst@email.ru"), null, null,
                     null, null),
             new UserDto(2L, "UserSecondName", "UserSecond@email.ru"), Status.WAITING);
+
     private List listBookingDto = new ArrayList<>();
 
     @Test
@@ -73,6 +76,17 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.end",
                         is(bookingDto.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
                 .andExpect(jsonPath("$.status", is(bookingDto.getStatus().toString())));
+    }
+
+    @Test
+    void createIncorrectBooking() throws Exception {
+        BookingController controller = new BookingController(bookingService);
+        User user = new User(11L, "UserFirstName", "UserFirst@yandex.ru");
+        assertThrows(BadRequestException.class,
+                () -> controller.create(new BookingInputDto(
+                        1L,
+                        LocalDateTime.of(2040, 12, 25, 13, 00, 00),
+                        LocalDateTime.of(2030, 12, 25, 12, 00, 00)), user.getId()));
     }
 
     @Test
