@@ -1,14 +1,14 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.requests.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-public class ItemRequest {
-    private Long id;
+@AllArgsConstructor
+public class ItemRequestDto {
     private String description;
     private String requestorName;
     private LocalDateTime created;
 }
-
