@@ -14,11 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemDto {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "must not be null")
     private String name;
-    @NotBlank
+    @NotBlank(message = "must not be null")
     private String description;
-    @NotNull
+    @NotNull(message = "must not be null")
     private Boolean available;
     @JsonIgnore
     private User owner;

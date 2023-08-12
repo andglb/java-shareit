@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemRequestDto {
     private Long id;
-    @NotBlank
+    @NotBlank(message = "must not be null")
     private String description;
     private UserDto requestor;
     private LocalDateTime created;

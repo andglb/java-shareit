@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class BookingInputDto {
-    @NotNull
+    @NotNull(message = "must not be null")
     private Long itemId;
-    @FutureOrPresent
-    @NotNull
+    @FutureOrPresent(message = "must be a date in the present or in the future")
+    @NotNull(message = "must not be null")
     private LocalDateTime start;
-    @Future
-    @NotNull
+    @Future(message = "must be a future date")
+    @NotNull(message = "must not be null")
     private LocalDateTime end;
 }
