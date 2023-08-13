@@ -124,6 +124,15 @@ public class BookingServiceTest {
         bookingService.create(bookingInputDto1, newUserDto.getId());
         List<BookingDto> listBookings = bookingService.getBookings("WAITING", newUserDto.getId(),
                 0, null);
+        List<BookingDto> listBookingsCurrent = bookingService.getBookings("CURRENT", newUserDto.getId(),
+                0, null);
+        List<BookingDto> listBookingsPast = bookingService.getBookings("PAST", newUserDto.getId(),
+                0, null);
+        List<BookingDto> listBookingsFuture = bookingService.getBookings("FUTURE", newUserDto.getId(),
+                0, null);
+        assertEquals(0, listBookingsCurrent.size());
+        assertEquals(0, listBookingsPast.size());
+        assertEquals(2, listBookingsFuture.size());
         assertEquals(2, listBookings.size());
     }
 
@@ -244,6 +253,15 @@ public class BookingServiceTest {
         bookingService.create(bookingInputDto1, newUserDto.getId());
         List<BookingDto> listBookings = bookingService.getBookingsOwner("WAITING", ownerDto.getId(),
                 0, null);
+        List<BookingDto> listBookingsCurrent = bookingService.getBookingsOwner("CURRENT", newUserDto.getId(),
+                0, null);
+        List<BookingDto> listBookingsPast = bookingService.getBookingsOwner("PAST", newUserDto.getId(),
+                0, null);
+        List<BookingDto> listBookingsFuture = bookingService.getBookingsOwner("FUTURE", newUserDto.getId(),
+                0, null);
+        assertEquals(0, listBookingsCurrent.size());
+        assertEquals(0, listBookingsPast.size());
+        assertEquals(0, listBookingsFuture.size());
         assertEquals(2, listBookings.size());
     }
 

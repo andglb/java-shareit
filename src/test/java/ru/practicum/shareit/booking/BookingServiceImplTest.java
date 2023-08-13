@@ -14,16 +14,16 @@ import ru.practicum.shareit.service.CheckConsistencyService;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @Transactional
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceImplTest {
     @Mock
-    BookingRepository mockBookingRepository;
+    private BookingRepository mockBookingRepository;
     @Mock
-    CheckConsistencyService checkConsistencyService;
+    private CheckConsistencyService checkConsistencyService;
 
     @Test
     void shouldExceptionWhenGetBookingWithWrongId() {
