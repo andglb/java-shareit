@@ -13,6 +13,7 @@ import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.service.CheckConsistencyService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -40,6 +41,7 @@ public class ItemServiceTest {
             user, null, null, null, null);
     private ItemDto itemDto2 = new ItemDto(202L, "ItemSecondName", "ItemSecondDescription", true,
             user, null, null, null, null);
+    private CheckConsistencyService checker;
 
     @Test
     void shouldCreateItem() {
@@ -129,11 +131,12 @@ public class ItemServiceTest {
 
     @Test
     void shouldExceptionWhenCreateCommentWhenUserNotBooker() {
+        checker = new CheckConsistencyService(userService, itemService, bookingService);
         UserDto ownerDto = userService.create(userDto1);
         UserDto newUserDto = userService.create(userDto2);
         ItemDto newItemDto = itemService.create(itemDto, ownerDto.getId());
-        CommentDto commentDto = new CommentDto(1L, "FirstComment", itemMapper.toItem(itemDto, ownerDto.getId()),
-                newUserDto.getName(), LocalDateTime.now());
+        CommentDto commentDto = new CommentDto(1L, "FirstComment", itemMapper.toItem(itemDto,
+                checker.findUserById(ownerDto.getId())), newUserDto.getName(), LocalDateTime.now());
         ValidationException exp = assertThrows(ValidationException.class,
                 () -> itemService.createComment(commentDto, itemDto.getId(), newUserDto.getId()));
         assertEquals("Данный пользователь вещь не бронировал!", exp.getMessage());
@@ -141,6 +144,7 @@ public class ItemServiceTest {
 
     @Test
     void shouldCreateComment() {
+        checker = new CheckConsistencyService(userService, itemService, bookingService);
         UserDto ownerDto = userService.create(userDto1);
         UserDto newUserDto = userService.create(userDto2);
         ItemDto newItemDto = itemService.create(itemDto, ownerDto.getId());
@@ -156,8 +160,8 @@ public class ItemServiceTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        CommentDto commentDto = new CommentDto(1L, "FirstComment", itemMapper.toItem(itemDto, ownerDto.getId()),
-                newUserDto.getName(), LocalDateTime.now());
+        CommentDto commentDto = new CommentDto(1L, "FirstComment", itemMapper.toItem(itemDto,
+                checker.findUserById(ownerDto.getId())), newUserDto.getName(), LocalDateTime.now());
         itemService.createComment(commentDto, newItemDto.getId(), newUserDto.getId());
         Assertions.assertEquals(1, itemService.getCommentsByItemId(newItemDto.getId()).size());
     }

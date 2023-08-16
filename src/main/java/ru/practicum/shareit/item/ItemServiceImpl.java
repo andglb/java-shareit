@@ -9,11 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.service.CheckConsistencyService;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.util.Pagination;
 
 import java.time.LocalDateTime;
@@ -45,10 +47,13 @@ public class ItemServiceImpl implements ItemService {
         ItemDto itemDto;
         Item item = repository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, id)));
+        List<CommentDto> comments = checker.getCommentsByItemId(item.getId());
+        BookingShortDto lastBooking = checker.getLastBooking(item.getId());
+        BookingShortDto nextBooking = checker.getNextBooking(item.getId());
         if (userId.equals(item.getOwner().getId())) {
-            itemDto = mapper.toItemExtDto(item);
+            itemDto = mapper.toItemExtDto(item, lastBooking, nextBooking, comments);
         } else {
-            itemDto = mapper.toItemDto(item);
+            itemDto = mapper.toItemDto(item, comments);
         }
         return itemDto;
     }
@@ -62,7 +67,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(ItemDto itemDto, Long ownerId) {
         checker.isExistUser(ownerId);
-        return mapper.toItemDto(repository.save(mapper.toItem(itemDto, ownerId)));
+        User user = checker.findUserById(ownerId);
+        List<CommentDto> comments = checker.getCommentsByItemId(itemDto.getId());
+        return mapper.toItemDto(repository.save(mapper.toItem(itemDto, user)), comments);
     }
 
     @Override
@@ -74,13 +81,15 @@ public class ItemServiceImpl implements ItemService {
         Page<Item> page;
         Pagination pager = new Pagination(from, size);
 
-
         if (size == null) {
             pageable =
                     PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
             do {
                 page = repository.findByOwnerId(ownerId, pageable);
-                listItemExtDto.addAll(page.stream().map(mapper::toItemExtDto).collect(toList()));
+                listItemExtDto.addAll(page.stream().map(item -> mapper.toItemExtDto(item,
+                        checker.getLastBooking(item.getId()),
+                        checker.getNextBooking(item.getId()),
+                        checker.getCommentsByItemId(item.getId()))).collect(toList()));
                 pageable = pageable.next();
             } while (page.hasNext());
 
@@ -89,7 +98,10 @@ public class ItemServiceImpl implements ItemService {
                 pageable =
                         PageRequest.of(i, pager.getPageSize(), sort);
                 page = repository.findByOwnerId(ownerId, pageable);
-                listItemExtDto.addAll(page.stream().map(mapper::toItemExtDto).collect(toList()));
+                listItemExtDto.addAll(page.stream().map(item -> mapper.toItemExtDto(item,
+                        checker.getLastBooking(item.getId()),
+                        checker.getNextBooking(item.getId()),
+                        checker.getCommentsByItemId(item.getId()))).collect(toList()));
                 if (!page.hasNext()) {
                     break;
                 }
@@ -128,7 +140,7 @@ public class ItemServiceImpl implements ItemService {
                         PageRequest.of(pager.getIndex(), pager.getPageSize(), sort);
                 do {
                     page = repository.getItemsBySearchQuery(text, pageable);
-                    listItemDto.addAll(page.stream().map(mapper::toItemDto).collect(toList()));
+                    listItemDto.addAll(page.stream().map(item -> mapper.toItemDto(item, checker.getCommentsByItemId(item.getId()))).collect(toList()));
                     pageable = pageable.next();
                 } while (page.hasNext());
 
@@ -137,7 +149,7 @@ public class ItemServiceImpl implements ItemService {
                     pageable =
                             PageRequest.of(i, pager.getPageSize(), sort);
                     page = repository.getItemsBySearchQuery(text, pageable);
-                    listItemDto.addAll(page.stream().map(mapper::toItemDto).collect(toList()));
+                    listItemDto.addAll(page.stream().map(item -> mapper.toItemDto(item, checker.getCommentsByItemId(item.getId()))).collect(toList()));
                     if (!page.hasNext()) {
                         break;
                     }
@@ -153,6 +165,7 @@ public class ItemServiceImpl implements ItemService {
         checker.isExistUser(ownerId);
         Item item = repository.findById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException(String.format(ITEM_NOT_FOUND, itemId)));
+        List<CommentDto> comments = checker.getCommentsByItemId(item.getId());
         if (!item.getOwner().getId().equals(ownerId)) {
             throw new ItemNotFoundException("У пользователя нет такой вещи!");
         }
@@ -165,7 +178,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        return mapper.toItemDto(repository.save(item));
+        return mapper.toItemDto(repository.save(item), comments);
     }
 
     @Override
@@ -196,7 +209,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getItemsByRequestId(Long requestId) {
         return repository.findAllByRequestId(requestId,
                         Sort.by(Sort.Direction.DESC, "id")).stream()
-                .map(mapper::toItemDto)
+                .map(item -> mapper.toItemDto(item, checker.getCommentsByItemId(item.getId())))
                 .collect(toList());
     }
 }

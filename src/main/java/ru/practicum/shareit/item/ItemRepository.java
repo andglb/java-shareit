@@ -12,9 +12,10 @@ import java.util.List;
 public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
     Page<Item> findByOwnerId(Long ownerId, Pageable pageable);
 
-    @Query(" select i from Item i " +
-            "where lower(i.name) like lower(concat('%', :search, '%')) " +
-            " or lower(i.description) like lower(concat('%', :search, '%')) " +
+    @Query(" select i " +
+            "from Item i " +
+            "where ((lower(i.name) like lower(concat('%', :search, '%'))) " +
+            " or (lower(i.description) like lower(concat('%', :search, '%')))) " +
             " and i.available = true")
     Page<Item> getItemsBySearchQuery(@Param("search") String text, Pageable pageable);
 

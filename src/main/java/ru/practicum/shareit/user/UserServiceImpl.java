@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException(String.format(USER_NOT_FOUND, dto.getId()));
         }
         User user = userOpt.get();
-        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
+        if (!Objects.equals(dto.getEmail(), user.getEmail())) {
             checkEmailExistException(dto.getEmail());
         }
         User updateUser = repository.save(updateUserFields(dto, user));
@@ -84,10 +85,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private User updateUserFields(UserDto dto, User user) {
-        if (dto.getName() != null && dto.getName() != user.getName()) {
+        if (dto.getName() != null && !dto.getName().equals(user.getName())) {
             user.setName(dto.getName());
         }
-        if (dto.getEmail() != null && dto.getEmail() != user.getEmail()) {
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             user.setEmail(dto.getEmail());
         }
         return user;

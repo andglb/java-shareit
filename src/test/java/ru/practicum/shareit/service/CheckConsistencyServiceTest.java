@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
@@ -19,6 +20,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 
@@ -51,14 +53,16 @@ public class CheckConsistencyServiceTest {
     @Test
     void shouldReturnTrueWhenItemAvailable() {
         UserDto newUserDto = userService.create(userMapper.toUserDto(user));
-        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item), newUserDto.getId());
+        List<CommentDto> comments = checker.getCommentsByItemId(item.getId());
+        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item, comments), newUserDto.getId());
         assertTrue(checker.isAvailableItem(newItemDto.getId()));
     }
 
     @Test
     void shouldReturnTrueWhenIsItemOwner() {
         UserDto newUserDto = userService.create(userMapper.toUserDto(user));
-        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item), newUserDto.getId());
+        List<CommentDto> comments = checker.getCommentsByItemId(item.getId());
+        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item, comments), newUserDto.getId());
         assertTrue(checker.isItemOwner(newItemDto.getId(), newUserDto.getId()));
     }
 
@@ -66,7 +70,7 @@ public class CheckConsistencyServiceTest {
     void shouldReturnBookingWithUserBookedItem() {
         UserDto firstUserDto = userService.create(userMapper.toUserDto(user));
         UserDto secondUserDto = userService.create(userMapper.toUserDto(user2));
-        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item), firstUserDto.getId());
+        ItemDto newItemDto = itemService.create(itemMapper.toItemDto(item, checker.getCommentsByItemId(item.getId())), firstUserDto.getId());
         BookingInputDto bookingInputDto = new BookingInputDto(
                 newItemDto.getId(),
                 LocalDateTime.now().plusSeconds(1),
