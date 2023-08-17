@@ -39,13 +39,13 @@ public class UserController {
     @ResponseBody
     @PatchMapping("/{userId}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
-        log.info("Получен PATCH-запрос к эндпоинту: '/users' на обновление пользователя с ID={}", userId);
+        log.info("Получен PATCH-запрос к эндпоинту: '/users' на обновление пользователя с ID = {}", userId);
         return userService.update(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
     public void delete(@PathVariable Long userId) {
-        log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление пользователя с ID={}", userId);
+        log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление пользователя с ID = {}", userId);
         userService.delete(userId);
     }
 }
