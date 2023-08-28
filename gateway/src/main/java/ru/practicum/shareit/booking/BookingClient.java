@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
@@ -25,20 +26,31 @@ public class BookingClient extends BaseClient {
         );
     }
 
+    /*Добрый вечер, Вячеслав! Конкатенацию строк для создания пути убрал, а вот второй пункт я не совсем понял для чего
+    * это делать, ведь нам был дан такой шаблон с ResponseEntity<Object>. Также вернул тестирование модуля server, а то
+    * в прошлый раз я его забыл перенести :). Надеюсь на понимание, ведь времени у меня не так много((*/
     public ResponseEntity<Object> getBookings(Long userId, BookingState state, Integer from, Integer size) {
-        String path = "?state=" + state.name() + "&from=" + from;
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/")
+                .queryParam("state", state.name())
+                .queryParam("from", from);
+
         if (size != null) {
-            path += "&size=" + size;
+            uriBuilder.queryParam("size", size);
         }
-        return get(path, userId, null);
+
+        return get(uriBuilder.build().toString(), userId, null);
     }
 
     public ResponseEntity<Object> getBookingsOwner(Long userId, BookingState state, Integer from, Integer size) {
-        String path = "/owner?state=" + state.name() + "&from=" + from;
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath("/owner")
+                .queryParam("state", state.name())
+                .queryParam("from", from);
+
         if (size != null) {
-            path += "&size=" + size;
+            uriBuilder.queryParam("size", size);
         }
-        return get(path, userId, null);
+
+        return get(uriBuilder.buildAndExpand().toString(), userId, null);
     }
 
 
